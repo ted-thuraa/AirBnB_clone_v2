@@ -3,11 +3,17 @@
 """
 import models
 from models.base_model import BaseModel, Base
-from models import city, state
 from os import environ, getenv
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
 HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
 HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
@@ -20,6 +26,13 @@ class DBStorage:
     """
     __engine = None
     __session = None
+    __clsdict = {"User": User,
+                "State": State,
+                "City": City,
+                "Amenity": Amenity,
+                "Place": Place,
+                "Review": Review
+                }
 
     def __init__(self):
         """initializer for DBStorage"""
@@ -42,8 +55,8 @@ class DBStorage:
                 row.to_dict()
                 result.update({key: row})
         else:
-            for table in models.dummy_tables:
-                cls = models.dummy_tables[table]
+            for table in self.__clsdict:
+                cls = self.__clsdict[table]
                 for row in self.__session.query(cls).all():
                     key = "{}.{}".format(cls.__name__, row.id)
                     row.to_dict()
